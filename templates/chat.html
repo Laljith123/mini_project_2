@@ -1,15 +1,97 @@
 <section class="chat-card">
-  <h2>Ask about admissions</h2>
-  <div class="conversation">
+  <div class="card-header">
+    <h2>Ask about admissions</h2>
+    <a href="/clear" class="btn-clear" title="Clear current session chat history">Reset conversation</a>
+  </div>
+  <div class="conversation" id="conversationBox">
 {{HISTORY}}
   </div>
-  <form method="post" action="/ask" class="ask-form">
-    <input type="text" name="question" maxlength="500"
-           placeholder="e.g. What is the eligibility for B.Tech CSE?" required/>
-    <button type="submit">Ask</button>
+  <form method="post" action="/ask" class="ask-form" id="chatForm">
+    <input type="text" name="question" id="questionInput" maxlength="500"
+           placeholder="e.g. What is the eligibility for B.Tech CSE?" required autocomplete="off"/>
+    <button type="submit" id="submitBtn">Ask</button>
   </form>
-  <p class="hint">Try:</p>
+  <p class="hint">Try asking:</p>
   <div class="suggestions">
 {{SUGGESTIONS}}
   </div>
 </section>
+
+<script>
+(function() {
+  const box = document.getElementById('conversationBox');
+  const form = document.getElementById('chatForm');
+  const input = document.getElementById('questionInput');
+  const btn = document.getElementById('submitBtn');
+
+  // Auto-scroll to bottom on load
+  function scrollToBottom() {
+    if (box) {
+      box.scrollTop = box.scrollHeight;
+    }
+  }
+  scrollToBottom();
+
+  // Progressive enhancement: send via JSON API if supported
+  if (form && window.fetch) {
+    form.addEventListener('submit', async function(e) {
+      const q = (input.value || '').trim();
+      if (!q) return;
+
+      e.preventDefault();
+      btn.disabled = true;
+      btn.textContent = '...';
+
+      // Append user message immediately to UI
+      const userDiv = document.createElement('div');
+      userDiv.className = 'msg user';
+      userDiv.innerHTML = '<div class="who">You</div><div class="bubble"></div>';
+      userDiv.querySelector('.bubble').textContent = q;
+      box.appendChild(userDiv);
+
+      // Typing indicator placeholder
+      const loadingDiv = document.createElement('div');
+      loadingDiv.className = 'msg bot loading-msg';
+      loadingDiv.innerHTML = '<div class="who">Assistant</div><div class="bubble"><em>Thinking...</em></div>';
+      box.appendChild(loadingDiv);
+      scrollToBottom();
+      input.value = '';
+
+      try {
+        const res = await fetch('/api/chat', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify({ question: q })
+        });
+
+        if (!res.ok) {
+          throw new Error('Server returned ' + res.status);
+        }
+
+        const data = await res.json();
+        box.removeChild(loadingDiv);
+
+        const botDiv = document.createElement('div');
+        botDiv.className = 'msg bot';
+        const modeLabel = data.meta && data.meta.mode === 'online' ? 'GPT-4o (OpenAI)' : 'Knowledge Base Engine';
+        const intentLabel = data.meta && data.meta.intent ? (data.meta.intent.charAt(0).toUpperCase() + data.meta.intent.slice(1)) : 'General';
+        const latency = data.meta && data.meta.latency_ms ? ` &middot; ${data.meta.latency_ms}ms` : '';
+        botDiv.innerHTML = `<div class="who">Assistant &middot; ${modeLabel} &middot; Intent: ${intentLabel}${latency}</div><div class="bubble">${data.html}</div>`;
+        box.appendChild(botDiv);
+      } catch (err) {
+        // In case of error, fall back to standard form submission
+        form.submit();
+        return;
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Ask';
+        scrollToBottom();
+        input.focus();
+      }
+    });
+  }
+})();
+</script>

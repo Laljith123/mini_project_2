@@ -17,4 +17,4 @@ COPY static/ static/
 # Run the WSGI application with gunicorn (3 workers, timeout tuned for GPT API calls)
 ENV PORT=8000
 EXPOSE 8000
-CMD ["sh", "-c", "gunicorn --bind 0.0.0.0:${PORT} --workers 3 --timeout 60 application:application"]
+CMD ["sh", "-c", "gunicorn --bind 0.0.0.0:${PORT} --workers 3 --timeout 60 app:application"]

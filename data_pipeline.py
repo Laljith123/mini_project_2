@@ -3,9 +3,10 @@ Data Engineering pipeline for the College Admission Enquiry Assistant.
 
 Stage 1 - Collection : admission data curated into a single JSON source.
 Stage 2 - Validation : every record is checked (required fields, types,
-                       referential integrity of fee -> program links).
+                       referential integrity of fee -> program links,
+                       non-negative amounts, complete facility & FAQ records).
 Stage 3 - Transform  : derived views are computed (fee totals per program,
-                       keyword index for retrieval).
+                       keyword index for fast retrieval, normalized query maps).
 Stage 4 - Loading    : the validated knowledge base is handed to the AI
                        engine and to the /kb browser view.
 
@@ -16,9 +17,13 @@ that data quality is continuously visible, not assumed.
 import json
 import re
 
-REQUIRED_PROGRAM_FIELDS = ["code", "name", "duration", "intake",
-                           "eligibility", "first_year_fees"]
+REQUIRED_PROGRAM_FIELDS = [
+    "code", "name", "duration", "intake",
+    "eligibility", "first_year_fees"
+]
 REQUIRED_FEE_FIELDS = ["program", "component", "amount", "frequency"]
+REQUIRED_FACILITY_FIELDS = ["name", "description"]
+REQUIRED_FAQ_FIELDS = ["q", "a"]
 
 
 def load_raw(path):
@@ -28,36 +33,79 @@ def load_raw(path):
 
 
 def validate(kb):
-    """Stage 2 - Validation: returns a list of human-readable findings."""
+    """Stage 2 - Validation: inspect all records and return human-readable findings and error count."""
     findings = []
     errors = 0
 
+    # College metadata
+    college = kb.get("college", {})
+    if not isinstance(college, dict) or not college.get("name"):
+        findings.append("college: missing required college name")
+        errors += 1
+
+    # Programs
     program_codes = set()
-    for p in kb.get("programs", []):
+    programs = kb.get("programs", [])
+    if not programs:
+        findings.append("programs: list is empty")
+        errors += 1
+
+    for p in programs:
         for field in REQUIRED_PROGRAM_FIELDS:
             if field not in p:
-                findings.append("program '{}': missing field '{}'".format(
-                    p.get("name", "?"), field))
+                findings.append(f"program '{p.get('name', '?')}': missing field '{field}'")
                 errors += 1
-        if not isinstance(p.get("intake"), int):
-            findings.append("program '{}': intake must be an integer".format(
-                p.get("name", "?")))
+        if not isinstance(p.get("intake"), int) or p.get("intake", 0) <= 0:
+            findings.append(f"program '{p.get('name', '?')}': intake must be a positive integer")
             errors += 1
-        program_codes.add(p.get("code"))
+        if not isinstance(p.get("first_year_fees"), (int, float)) or p.get("first_year_fees", 0) < 0:
+            findings.append(f"program '{p.get('name', '?')}': first_year_fees must be non-negative")
+            errors += 1
+        code = p.get("code")
+        if code:
+            program_codes.add(code)
 
+    # Fee structure
     for f in kb.get("fee_structure", []):
         for field in REQUIRED_FEE_FIELDS:
             if field not in f:
-                findings.append("fee entry: missing field '{}'".format(field))
+                findings.append(f"fee entry: missing field '{field}'")
                 errors += 1
         if f.get("program") and f["program"] not in program_codes:
-            findings.append("fee entry for unknown program code '{}'".format(
-                f.get("program")))
+            findings.append(f"fee entry references unknown program code '{f.get('program')}'")
             errors += 1
         if not isinstance(f.get("amount"), (int, float)) or f.get("amount", 0) < 0:
-            findings.append("fee entry '{}': amount must be a positive number".format(
-                f.get("component", "?")))
+            findings.append(f"fee entry '{f.get('component', '?')}': amount must be a non-negative number")
             errors += 1
+
+    # Hostel fees
+    for h in kb.get("hostel_fees", []):
+        if not h.get("component"):
+            findings.append("hostel fee: missing component name")
+            errors += 1
+        if not isinstance(h.get("amount"), (int, float)) or h.get("amount", 0) < 0:
+            findings.append(f"hostel fee '{h.get('component', '?')}': amount must be non-negative")
+            errors += 1
+
+    # Admission procedure
+    steps = kb.get("admission_procedure", [])
+    if not isinstance(steps, list) or not steps:
+        findings.append("admission_procedure: must be a non-empty list of steps")
+        errors += 1
+
+    # Facilities
+    for fac in kb.get("facilities", []):
+        for field in REQUIRED_FACILITY_FIELDS:
+            if field not in fac or not fac[field]:
+                findings.append(f"facility '{fac.get('name', '?')}': missing field '{field}'")
+                errors += 1
+
+    # FAQs
+    for faq in kb.get("faqs", []):
+        for field in REQUIRED_FAQ_FIELDS:
+            if field not in faq or not faq[field]:
+                findings.append(f"faq entry: missing field '{field}'")
+                errors += 1
 
     if not findings:
         findings.append("all records passed validation (0 errors)")
@@ -65,35 +113,89 @@ def validate(kb):
 
 
 def transform(kb):
-    """Stage 3 - Transform: compute derived views used by the AI engine.
+    """Stage 3 - Transform: compute derived views and indices used by the AI engine.
 
     - total_first_year_fees per program code
-    - an inverted keyword index mapping terms -> program codes / facility ids
+    - inverted keyword index mapping normalized terms -> entities
+    - normalized query lookup for curated FAQs
     """
     totals = {}
     for entry in kb.get("fee_structure", []):
-        code = entry["program"]
-        if entry["frequency"] == "yearly":
-            totals[code] = totals.get(code, 0) + entry["amount"]
+        code = entry.get("program")
+        if entry.get("frequency") == "yearly":
+            totals[code] = totals.get(code, 0) + entry.get("amount", 0)
     kb["derived_total_first_year_fees"] = totals
 
     index = {}
+    stopwords = {"what", "is", "the", "for", "in", "and", "to", "of", "a", "an", "how", "much", "are"}
+
     for p in kb.get("programs", []):
-        text = " ".join([p["code"], p["name"], p.get("eligibility", ""),
-                         p.get("about", "")]).lower()
-        for term in re.findall(r"[a-z]+", text):
-            index.setdefault(term, set()).add(("program", p["code"]))
+        text = " ".join([
+            p.get("code", ""),
+            p.get("name", ""),
+            p.get("eligibility", ""),
+            p.get("about", "")
+        ]).lower()
+        for term in re.findall(r"[a-z0-9]+", text):
+            if len(term) >= 2 and term not in stopwords:
+                index.setdefault(term, set()).add(("program", p["code"]))
+
     for fac in kb.get("facilities", []):
-        text = " ".join([fac["name"], fac.get("description", "")]).lower()
-        for term in re.findall(r"[a-z]+", text):
-            index.setdefault(term, set()).add(("facility", fac["name"]))
-    for faq in kb.get("faqs", []):
-        text = " ".join([faq["q"], faq["a"]]).lower()
-        for term in re.findall(r"[a-z]+", text):
-            index.setdefault(term, set()).add(("faq", faq["q"]))
-    # convert sets -> sorted lists so the structure is JSON-serializable
+        text = " ".join([fac.get("name", ""), fac.get("description", "")]).lower()
+        for term in re.findall(r"[a-z0-9]+", text):
+            if len(term) >= 2 and term not in stopwords:
+                index.setdefault(term, set()).add(("facility", fac["name"]))
+
+    for idx, faq in enumerate(kb.get("faqs", [])):
+        text = " ".join([faq.get("q", ""), faq.get("a", "")]).lower()
+        for term in re.findall(r"[a-z0-9]+", text):
+            if len(term) >= 2 and term not in stopwords:
+                index.setdefault(term, set()).add(("faq", idx))
+
+    # Convert sets to sorted lists for JSON serializability and stability
     kb["keyword_index"] = {k: sorted(v) for k, v in index.items()}
     return kb
+
+
+def get_faq_match(kb, question):
+    """Match a user question against curated FAQs using token overlap scoring.
+
+    Returns the matching FAQ dict or None if no confident match is found.
+    """
+    q_tokens = set(re.findall(r"[a-z0-9]+", question.lower()))
+    stopwords = {"what", "is", "the", "for", "in", "and", "to", "of", "a", "an", "how", "much", "are", "do", "does", "can", "i"}
+    meaningful = q_tokens - stopwords
+    if not meaningful:
+        return None
+
+    best_faq = None
+    best_score = 0.0
+
+    for faq in kb.get("faqs", []):
+        faq_tokens = set(re.findall(r"[a-z0-9]+", faq["q"].lower())) - stopwords
+        if not faq_tokens:
+            continue
+        overlap = meaningful & faq_tokens
+        if not overlap:
+            continue
+        # Jaccard-like similarity coefficient
+        score = len(overlap) / len(meaningful | faq_tokens)
+        if score > best_score:
+            best_score = score
+            best_faq = faq
+
+    # Confidence threshold for direct FAQ answering
+    if best_score >= 0.35:
+        return best_faq
+    return None
+
+
+def get_program_by_code(kb, code):
+    """Retrieve program record by branch code."""
+    for p in kb.get("programs", []):
+        if p.get("code") == code:
+            return p
+    return None
 
 
 def knowledge_base_stats(kb):
@@ -117,15 +219,13 @@ def load_and_validate(path):
     for f in findings:
         print("[data]   " + f)
     if errors:
-        raise ValueError("knowledge base failed validation: {} errors".format(errors))
+        raise ValueError(f"knowledge base failed validation: {errors} errors")
     kb = transform(kb)
-    print("[data] transform complete: {} indexed terms, {} program fee totals".format(
-        len(kb["keyword_index"]), len(kb["derived_total_first_year_fees"])))
+    print(f"[data] transform complete: {len(kb['keyword_index'])} indexed terms, {len(kb['derived_total_first_year_fees'])} program fee totals")
     return kb
 
 
 if __name__ == "__main__":
     import sys
     kb = load_and_validate(sys.argv[1] if len(sys.argv) > 1 else "knowledge_base.json")
-    import json as j
-    print(j.dumps(kb["derived_total_first_year_fees"], indent=2))
+    print(json.dumps(kb["derived_total_first_year_fees"], indent=2))
