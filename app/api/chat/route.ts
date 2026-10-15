@@ -13,14 +13,29 @@ export async function POST(req: NextRequest) {
     }
 
     let question = "";
+    let apiKey: string | undefined = undefined;
     const contentType = req.headers.get("content-type") || "";
 
     if (contentType.includes("application/json")) {
       const body = await req.json();
       question = body?.question || "";
+      if (typeof body?.apiKey === "string") {
+        apiKey = body.apiKey.trim();
+      }
     } else {
       const formData = await req.formData();
       question = (formData.get("question") as string) || "";
+      const formKey = formData.get("apiKey") as string | null;
+      if (formKey) {
+        apiKey = formKey.trim();
+      }
+    }
+
+    if (!apiKey) {
+      const headerKey = req.headers.get("x-openai-api-key");
+      if (headerKey) {
+        apiKey = headerKey.trim();
+      }
     }
 
     const cleaned = sanitizeInput(question);
@@ -38,7 +53,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const response = await answerEnquiry(cleaned);
+    const response = await answerEnquiry(cleaned, apiKey);
     return NextResponse.json(response);
   } catch (error) {
     console.error("Error processing enquiry in /api/chat:", error);

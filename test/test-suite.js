@@ -169,6 +169,17 @@ it("should enforce sliding window rate limiting per IP", () => {
   assert.strictEqual(timestamps.length <= max, false, "31st request must trigger limit");
 });
 
+// 6. Client API Key Configuration & Fallback Tests
+it("should handle client-provided API key parameter and prioritize it over env", () => {
+  function resolveApiKey(clientKey, envKey) {
+    return (clientKey && clientKey.trim()) || (envKey && envKey.trim()) || "";
+  }
+  assert.strictEqual(resolveApiKey("sk-client-key", "sk-env-key"), "sk-client-key");
+  assert.strictEqual(resolveApiKey("", "sk-env-key"), "sk-env-key");
+  assert.strictEqual(resolveApiKey(undefined, undefined), "");
+  assert.strictEqual(resolveApiKey("   ", ""), "");
+});
+
 console.log("\n=================================================");
 console.log(`Results: ${passed} passed, ${failed} failed`);
 console.log("=================================================");

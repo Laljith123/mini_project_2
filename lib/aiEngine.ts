@@ -366,14 +366,17 @@ export const AI_STATS = {
   } as Record<Intent, number>,
 };
 
-export async function answerEnquiry(question: string): Promise<ChatResponse> {
+export async function answerEnquiry(
+  question: string,
+  clientApiKey?: string
+): Promise<ChatResponse> {
   const t0 = Date.now();
   const kb = getKnowledgeBase();
   const { intent, matchedFaq } = classifyIntent(question, kb);
   const program = detectProgram(question);
   const retrieved = retrieve(kb, intent, program, matchedFaq);
 
-  const apiKey = process.env.OPENAI_API_KEY?.trim() || "";
+  const apiKey = clientApiKey?.trim() || process.env.OPENAI_API_KEY?.trim() || "";
   const model = process.env.OPENAI_MODEL?.trim() || "gpt-4o-mini";
 
   let modeUsed: "online" | "offline" = "offline";

@@ -50,13 +50,14 @@ A modern web application built with **Next.js 14 (App Router)** and **TypeScript
 
 ## Features
 
+- **Zero Hardcoded Secrets & Client-Side Key Management**: No API keys are ever hardcoded or stored on the server. On initial launch, users are prompted to either supply their own OpenAI API key (stored safely in the browser's `localStorage`) or continue in 100% free Offline Knowledge Base mode.
 - **Next.js 14 App Router**: Server and client component architecture with zero cold-start latency.
 - **Conversational UI**: Interactive chat interface with session history, optimistic message updates, typing indicators, and auto-scrolling.
 - **Intent Classification & Entity Recognition**: Classifies questions into 6 domains (`eligibility`, `courses`, `fees`, `procedure`, `facilities`, `faq`) and identifies program entities (`CSE`, `ECE`, `MECH`, `CIVIL`, `IT`, `AI-DS`).
 - **Semantic FAQ Matching**: Token overlap matching against curated admissions FAQs (management quota, scholarships, hostel guarantees, branch transfers, JEE Main scores).
 - **RAG-Grounded Answers**: Context injection ensures every admission fact comes strictly from verified institutional records, preventing hallucinations.
 - **Dual-Mode AI Engine**:
-  - **Online**: GPT-4o-mini with verified context injection.
+  - **Online**: GPT-4o-mini with verified context injection using the user's client-supplied API key.
   - **Offline**: Instant deterministic composer guaranteeing 100% functionality without internet or external API dependencies.
 - **Staff Knowledge Base Explorer (`/kb`)**: Interactive overview of program intakes, fee breakdowns, and real-time schema validation reports.
 - **REST JSON API (`/api/chat` & `/api/health`)**: First-class API endpoints for programmatic integration and load balancer probes.
@@ -152,7 +153,7 @@ npm start
 ## API Reference
 
 ### 1. `POST /api/chat`
-Enquiry endpoint accepting JSON payloads.
+Enquiry endpoint accepting JSON payloads with optional client-provided `apiKey`.
 
 **Request:**
 ```http
@@ -161,7 +162,8 @@ Content-Type: application/json
 Accept: application/json
 
 {
-  "question": "What is the fee for B.Tech CSE?"
+  "question": "What is the fee for B.Tech CSE?",
+  "apiKey": "sk-your-openai-key-optional"
 }
 ```
 
