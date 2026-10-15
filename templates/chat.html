@@ -1,0 +1,15 @@
+<section class="chat-card">
+  <h2>Ask about admissions</h2>
+  <div class="conversation">
+{{HISTORY}}
+  </div>
+  <form method="post" action="/ask" class="ask-form">
+    <input type="text" name="question" maxlength="500"
+           placeholder="e.g. What is the eligibility for B.Tech CSE?" required/>
+    <button type="submit">Ask</button>
+  </form>
+  <p class="hint">Try:</p>
+  <div class="suggestions">
+{{SUGGESTIONS}}
+  </div>
+</section>

@@ -1,0 +1,11 @@
+# Secrets are never committed - the API key lives in .env (local) or
+# Elastic Beanstalk environment properties (cloud).
+.env
+__pycache__/
+*.pyc
+.venv/
+
+# Reports and presentation assets
+*.docx
+diagrams/
+screenshots/

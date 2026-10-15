@@ -1,0 +1,134 @@
+{
+  "college": {
+    "name": "Sri Manakula Vinayagar Engineering College",
+    "location": "Madagadipet, Puducherry - 605107",
+    "type": "Autonomous institution affiliated to Pondicherry University",
+    "website": "https://www.smvec.ac.in"
+  },
+  "programs": [
+    {
+      "code": "CSE",
+      "name": "B.Tech Computer Science and Engineering",
+      "duration": "4 years",
+      "intake": 180,
+      "eligibility": "Pass in 10+2 with Mathematics, Physics and Chemistry with minimum 50% aggregate marks (45% for reserved categories); admission through counselling based on 10+2 marks / entrance rank as per Pondicherry Government norms.",
+      "first_year_fees": 85000,
+      "about": "Covers programming, data structures, DBMS, networks, AI & ML, cloud computing and full-stack development."
+    },
+    {
+      "code": "ECE",
+      "name": "B.Tech Electronics and Communication Engineering",
+      "duration": "4 years",
+      "intake": 120,
+      "eligibility": "Pass in 10+2 with Mathematics, Physics and Chemistry with minimum 50% aggregate marks (45% for reserved categories).",
+      "first_year_fees": 85000,
+      "about": "Covers electronic circuits, signals and systems, VLSI design, embedded systems and communication networks."
+    },
+    {
+      "code": "MECH",
+      "name": "B.Tech Mechanical Engineering",
+      "duration": "4 years",
+      "intake": 60,
+      "eligibility": "Pass in 10+2 with Mathematics, Physics and Chemistry with minimum 50% aggregate marks (45% for reserved categories).",
+      "first_year_fees": 75000,
+      "about": "Covers thermodynamics, design of machines, manufacturing technology, CAD/CAM and thermal engineering."
+    },
+    {
+      "code": "CIVIL",
+      "name": "B.Tech Civil Engineering",
+      "duration": "4 years",
+      "intake": 60,
+      "eligibility": "Pass in 10+2 with Mathematics, Physics and Chemistry with minimum 50% aggregate marks (45% for reserved categories).",
+      "first_year_fees": 75000,
+      "about": "Covers structural engineering, geotechnical engineering, transportation engineering and construction management."
+    },
+    {
+      "code": "IT",
+      "name": "B.Tech Information Technology",
+      "duration": "4 years",
+      "intake": 60,
+      "eligibility": "Pass in 10+2 with Mathematics, Physics and Chemistry with minimum 50% aggregate marks (45% for reserved categories).",
+      "first_year_fees": 85000,
+      "about": "Covers software engineering, web technologies, data analytics, information security and cloud services."
+    },
+    {
+      "code": "AI-DS",
+      "name": "B.Tech Artificial Intelligence and Data Science",
+      "duration": "4 years",
+      "intake": 60,
+      "eligibility": "Pass in 10+2 with Mathematics, Physics and Chemistry with minimum 50% aggregate marks (45% for reserved categories).",
+      "first_year_fees": 95000,
+      "about": "Covers machine learning, deep learning, data engineering, NLP and AI application development."
+    }
+  ],
+  "fee_structure": [
+    { "program": "CSE",   "component": "Tuition fee",      "amount": 65000, "frequency": "yearly" },
+    { "program": "CSE",   "component": "Development fee",  "amount": 12000, "frequency": "yearly" },
+    { "program": "CSE",   "component": "Exam fee",         "amount": 8000,  "frequency": "yearly" },
+    { "program": "ECE",   "component": "Tuition fee",      "amount": 65000, "frequency": "yearly" },
+    { "program": "ECE",   "component": "Development fee",  "amount": 12000, "frequency": "yearly" },
+    { "program": "ECE",   "component": "Exam fee",         "amount": 8000,  "frequency": "yearly" },
+    { "program": "MECH",  "component": "Tuition fee",      "amount": 55000, "frequency": "yearly" },
+    { "program": "MECH",  "component": "Development fee",  "amount": 12000, "frequency": "yearly" },
+    { "program": "MECH",  "component": "Exam fee",         "amount": 8000,  "frequency": "yearly" },
+    { "program": "CIVIL", "component": "Tuition fee",      "amount": 55000, "frequency": "yearly" },
+    { "program": "CIVIL", "component": "Development fee",  "amount": 12000, "frequency": "yearly" },
+    { "program": "CIVIL", "component": "Exam fee",         "amount": 8000,  "frequency": "yearly" },
+    { "program": "IT",    "component": "Tuition fee",      "amount": 65000, "frequency": "yearly" },
+    { "program": "IT",    "component": "Development fee",  "amount": 12000, "frequency": "yearly" },
+    { "program": "IT",    "component": "Exam fee",         "amount": 8000,  "frequency": "yearly" },
+    { "program": "AI-DS", "component": "Tuition fee",      "amount": 75000, "frequency": "yearly" },
+    { "program": "AI-DS", "component": "Development fee",  "amount": 12000, "frequency": "yearly" },
+    { "program": "AI-DS", "component": "Exam fee",         "amount": 8000,  "frequency": "yearly" }
+  ],
+  "hostel_fees": [
+    { "component": "Hostel accommodation (sharing)", "amount": 60000, "frequency": "yearly" },
+    { "component": "Mess charges",                  "amount": 48000, "frequency": "yearly" }
+  ],
+  "admission_procedure": [
+    "Obtain the application form online from the college website or in person from the admission cell.",
+    "Submit the completed application with copies of 10th and 12th mark sheets and transfer certificate.",
+    "Applications are shortlisted on the basis of 10+2 marks and, where applicable, government entrance / counselling rank.",
+    "Shortlisted candidates are called for certificate verification at the admission cell.",
+    "Pay the first-year fees online or by demand draft to confirm the seat.",
+    "Report on the notified date with original certificates for enrolment and hostel booking if required."
+  ],
+  "important_dates": [
+    { "event": "Application forms available", "date": "First week of May 2026" },
+    { "event": "Last date for submission",   "date": "Second week of June 2026" },
+    { "event": "Certificate verification",   "date": "Third week of June 2026" },
+    { "event": "Classes commence",           "date": "First week of July 2026" }
+  ],
+  "facilities": [
+    { "name": "Central Library",       "description": "Over 45,000 volumes, national and international journals, digital library with DELNET access and a dedicated reference section." },
+    { "name": "Computer Laboratories", "description": "Separate labs for programming, networks, AI & data science and cloud computing with high-speed internet on all nodes." },
+    { "name": "Smart Classrooms",      "description": "Wi-Fi enabled, projector and audio equipped classrooms supporting digital teaching." },
+    { "name": "Hostel",               "description": "Separate boys and girls hostels with warden supervision, reading rooms and indoor games; hygienic vegetarian and non-vegetarian mess." },
+    { "name": "Transport",            "description": "College buses operating on all major routes from Puducherry and Villianur to the campus." },
+    { "name": "Sports Complex",       "description": "Cricket ground, football ground, basketball and volleyball courts, indoor games and a modern gym." },
+    { "name": "Placement Cell",       "description": "Training in aptitude, coding and soft skills; campus recruitment with regular and core companies visiting every year." },
+    { "name": "Medical Room",        "description": "First-aid room on campus with a visiting doctor and tie-up with a nearby hospital for emergencies." }
+  ],
+  "faqs": [
+    {
+      "q": "Is there a management quota?",
+      "a": "A limited number of seats are filled under the management quota as per the norms of the Government of Puducherry; contact the admission cell for details."
+    },
+    {
+      "q": "Are scholarships available?",
+      "a": "Eligible students can avail state and central government scholarships, and the college offers merit scholarships for toppers of each branch."
+    },
+    {
+      "q": "Is hostel accommodation guaranteed?",
+      "a": "Hostel rooms are allotted on first-come-first-served basis after admission confirmation; early fee payment is advised."
+    },
+    {
+      "q": "Can I change my branch after admission?",
+      "a": "Branch transfer is possible after the first year subject to vacancy and academic performance as per university norms."
+    },
+    {
+      "q": "Does the college accept JEE Main scores?",
+      "a": "Admission is primarily counselling based; JEE Main scores are considered for management-quota shortlisting where applicable."
+    }
+  ]
+}

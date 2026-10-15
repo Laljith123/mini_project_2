@@ -1,0 +1,4 @@
+# Python dependencies for the College Admission Enquiry Assistant
+# The application intentionally uses only the Python standard library plus
+# gunicorn for production serving, which keeps the deployment footprint small.
+gunicorn==21.2.0

@@ -1,0 +1,38 @@
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: "Segoe UI", Arial, sans-serif; background: #eef2f7; color: #1f2937; }
+.site-header { background: #14345c; color: #fff; padding: 14px 28px; }
+.brand { display: flex; align-items: center; gap: 16px; }
+.brand img { width: 54px; height: 54px; border-radius: 10px; background: #fff; padding: 3px; }
+.brand h1 { font-size: 20px; }
+.tagline { font-size: 12px; color: #b8c7e0; margin-top: 2px; }
+nav { margin-top: 10px; font-size: 13px; }
+nav a { color: #dbe7fa; margin-right: 18px; text-decoration: none; }
+nav a:hover { text-decoration: underline; }
+main { max-width: 900px; margin: 24px auto; padding: 0 16px; }
+.chat-card, .kb-card { background: #fff; border: 1px solid #d7dee9; border-radius: 12px; padding: 22px 26px; }
+.chat-card h2, .kb-card h2 { color: #14345c; margin-bottom: 12px; font-size: 18px; }
+.conversation { max-height: 340px; overflow-y: auto; border: 1px solid #e3e8f0; border-radius: 8px; padding: 14px; background: #f8fafd; }
+.msg { margin-bottom: 12px; }
+.msg .who { font-size: 11px; color: #64748b; margin-bottom: 3px; }
+.msg .bubble { display: inline-block; max-width: 88%; padding: 10px 14px; border-radius: 10px; font-size: 14px; line-height: 1.5; }
+.msg.user { text-align: right; }
+.msg.user .bubble { background: #dcebff; text-align: left; }
+.msg.bot .bubble { background: #eef7ee; border: 1px solid #cfe6cf; }
+.ask-form { display: flex; gap: 10px; margin-top: 16px; }
+.ask-form input[type=text] { flex: 1; padding: 10px 14px; border: 1px solid #c4cfdd; border-radius: 8px; font-size: 14px; }
+.ask-form button { padding: 10px 24px; background: #2563eb; border: none; color: #fff; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; }
+.ask-form button:hover { background: #1d4ed8; }
+.hint { font-size: 12px; color: #64748b; margin-top: 14px; }
+.suggestions { display: flex; flex-wrap: wrap; gap: 8px; }
+.suggestion { background: #eef2ff; color: #3730a3; border: 1px solid #c7d2fe; padding: 6px 12px; border-radius: 16px; font-size: 12px; text-decoration: none; }
+.suggestion:hover { background: #e0e7ff; }
+.stats { display: flex; gap: 14px; margin: 14px 0; }
+.stat { background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px 18px; text-align: center; }
+.stat b { display: block; font-size: 20px; color: #14345c; }
+.stat span { font-size: 11px; color: #64748b; }
+.validation { font-size: 13px; background: #f0fdf4; border: 1px solid #bbf7d0; padding: 8px 12px; border-radius: 8px; }
+.validation .ok { color: #15803d; font-weight: 600; }
+.kb-table { width: 100%; border-collapse: collapse; margin-top: 14px; font-size: 13px; }
+.kb-table th, .kb-table td { border: 1px solid #d7dee9; padding: 8px 10px; text-align: left; }
+.kb-table th { background: #eff6ff; color: #14345c; }
+footer { text-align: center; color: #94a3b8; font-size: 12px; padding: 22px 0 30px; }
