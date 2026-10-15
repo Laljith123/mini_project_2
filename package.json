@@ -1,0 +1,36 @@
+{
+  "name": "first",
+  "version": "1.0.0",
+  "description": "A web application that answers student enquiries about college admissions — eligibility criteria, courses offered, fee structure, admission procedures, campus facilities, and frequently asked questions — using a GPT-powered conversational assistant grounded in a verified, validated admission knowledge base.",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "test": "node test/test-suite.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Laljith123/mini_project_2.git"
+  },
+  "keywords": [],
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Laljith123/mini_project_2/issues"
+  },
+  "homepage": "https://github.com/Laljith123/mini_project_2#readme",
+  "dependencies": {
+    "next": "^14.2.35",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.5",
+    "@types/react": "^18.3.31",
+    "@types/react-dom": "^18.3.7",
+    "typescript": "^5.9.3"
+  }
+}

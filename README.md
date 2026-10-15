@@ -1,6 +1,8 @@
-# College Admission Enquiry Assistant using GPT
+# College Admission Enquiry Assistant using GPT (Next.js)
 
-A web application that answers student enquiries about college admissions — eligibility criteria, courses offered, fee structure, admission procedures, campus facilities, and frequently asked questions — using a GPT-powered conversational assistant grounded in a verified, validated admission knowledge base.
+A modern web application built with **Next.js 14 (App Router)** and **TypeScript** that answers student enquiries about college admissions — eligibility criteria, courses offered, fee structures, admission procedures, campus facilities, and frequently asked questions. Powered by a conversational assistant grounded in a verified admissions knowledge base.
+
+**Live Production Deployment**: [https://first-tan-three.vercel.app](https://first-tan-three.vercel.app)
 
 ---
 
@@ -8,20 +10,22 @@ A web application that answers student enquiries about college admissions — el
 
 ```
                     +------------------------------------+
-                    |  Browser Client / REST API Client  |
+                    |  Next.js Client (React 18 / TS)   |
+                    |  - Interactive Chat Interface      |
+                    |  - Knowledge Base Browser (/kb)    |
                     +-----------------+------------------+
                                       |
                      HTTP / JSON      v
                     +------------------------------------+
-                    |        WSGI Web App (app.py)       |
-                    |  - Routing & Session Management    |
-                    |  - Security & Rate Limiting        |
-                    |  - HTML & REST JSON Endpoints      |
+                    | Next.js API Routes (Serverless)    |
+                    |  - POST /api/chat                  |
+                    |  - GET  /api/health                |
+                    |  - Anti-XSS Sanitisation & Limiter |
                     +-----------------+------------------+
                                       |
                      Enquiry Query    v
                     +------------------------------------+
-                    |        AI Engine (ai_engine.py)    |
+                    |     AI Engine (lib/aiEngine.ts)    |
                     |  - Intent Classification (6 domains|
                     |  - Program Entity Detection        |
                     |  - Semantic FAQ Matcher            |
@@ -38,7 +42,7 @@ A web application that answers student enquiries about college admissions — el
                     +------------------------------------+
                     | Verified Knowledge Base (data)     |
                     | - Curated Single Source of Truth   |
-                    | - Pipeline Validation & Transforms |
+                    | - Schema Validation & Transforms   |
                     +------------------------------------+
 ```
 
@@ -46,53 +50,51 @@ A web application that answers student enquiries about college admissions — el
 
 ## Features
 
-- **Conversational Interface**: Stateful per-session chat history with automatic thread-safe LRU pruning and 24-hour TTL.
-- **Progressive Enhancement**: Real-time async AJAX chat with typing indicators and auto-scroll, with zero-JavaScript fallback.
-- **Intent Classification & Entity Extraction**: Identifies 6 intents (`eligibility`, `courses`, `fees`, `procedure`, `facilities`, `faq`) and detects academic program branches (`CSE`, `ECE`, `MECH`, `CIVIL`, `IT`, `AI-DS`).
-- **Semantic FAQ Matching**: Token overlap matching against curated admissions FAQs (management quota, scholarships, hostel guarantees, branch transfers, entrance exam scores).
-- **RAG-Grounded Answers**: Context-injected generation ensures every fact comes strictly from verified admission records, eliminating hallucinations.
+- **Next.js 14 App Router**: Server and client component architecture with zero cold-start latency.
+- **Conversational UI**: Interactive chat interface with session history, optimistic message updates, typing indicators, and auto-scrolling.
+- **Intent Classification & Entity Recognition**: Classifies questions into 6 domains (`eligibility`, `courses`, `fees`, `procedure`, `facilities`, `faq`) and identifies program entities (`CSE`, `ECE`, `MECH`, `CIVIL`, `IT`, `AI-DS`).
+- **Semantic FAQ Matching**: Token overlap matching against curated admissions FAQs (management quota, scholarships, hostel guarantees, branch transfers, JEE Main scores).
+- **RAG-Grounded Answers**: Context injection ensures every admission fact comes strictly from verified institutional records, preventing hallucinations.
 - **Dual-Mode AI Engine**:
   - **Online**: GPT-4o-mini with verified context injection.
   - **Offline**: Instant deterministic composer guaranteeing 100% functionality without internet or external API dependencies.
-- **Staff Knowledge Base Browser (`/kb`)**: Live inspection of program intakes, fee breakdowns, and real-time schema validation reports.
-- **REST JSON API (`/api/chat`)**: First-class API endpoint for programmatic integration.
-- **Comprehensive Security Engineering**:
-  - Tag & inner-content anti-XSS stripping + output escaping.
-  - Strict Content Security Policy (CSP), `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, `Referrer-Policy`.
-  - Sliding-window thread-safe rate limiter (30 req/min/IP) with automatic memory eviction.
-  - Reverse proxy awareness (`X-Forwarded-For` inspection).
-  - Cryptographically secure 128-bit session IDs with `HttpOnly; SameSite=Lax` cookies.
-  - Whitelist-guarded static asset serving with path-traversal prevention.
+- **Staff Knowledge Base Explorer (`/kb`)**: Interactive overview of program intakes, fee breakdowns, and real-time schema validation reports.
+- **REST JSON API (`/api/chat` & `/api/health`)**: First-class API endpoints for programmatic integration and load balancer probes.
+- **Defensive Security Controls**:
+  - Script & style tag stripping with inner content removal + entity escaping.
+  - In-memory sliding-window rate limiting (30 req/min/IP) with automatic memory eviction.
+  - Reverse proxy awareness (`x-forwarded-for` inspection).
 
 ---
 
 ## Project Structure
 
 ```
-├── api/                    # Vercel Serverless Function entry point
-│   └── index.py            # WSGI serverless adapter
-├── app.py                  # Core WSGI web application (routing, sessions, API)
-├── ai_engine.py            # AI Engine: Intent classification, retrieval, GPT/fallback
-├── data_pipeline.py        # Data pipeline: Validation, transform, keyword indexing
-├── security.py             # Security module: Sanitisation, rate limiter, headers
+├── app/
+│   ├── layout.tsx          # Root site layout (Header, Brand, Nav, Footer)
+│   ├── page.tsx            # Interactive chat client component
+│   ├── globals.css         # Responsive styling
+│   ├── kb/
+│   │   └── page.tsx        # Knowledge base staff reference table
+│   └── api/
+│       ├── chat/
+│       │   └── route.ts    # POST /api/chat enquiry endpoint
+│       └── health/
+│           └── route.ts    # GET /api/health monitoring probe
+├── lib/
+│   ├── types.ts            # TypeScript interfaces & domain types
+│   ├── security.ts         # Anti-XSS sanitisation & rate limiter
+│   ├── knowledgeBase.ts    # Schema validation, fee transforms & FAQ matcher
+│   └── aiEngine.ts         # Intent classification, entity detection & GPT/composer
+├── public/
+│   └── logo.png            # Institution logo
+├── test/
+│   └── test-suite.js       # Automated test suite (schema, security, intents, entities)
 ├── knowledge_base.json     # Curated admissions dataset (single source of truth)
-├── vercel.json             # Vercel deployment configuration & routing
-├── .vercelignore           # Vercel build exclusion rules
-├── templates/              # Semantic HTML5 templates
-│   ├── base.html           # Site chrome layout
-│   ├── chat.html           # Chat UI with progressive enhancement
-│   └── kb_browser.html     # Knowledge base staff reference table
-├── static/                 # Static assets
-│   ├── logo.png            # Institution emblem
-│   └── style.css           # Responsive stylesheet
-├── tests/                  # Automated test suite (27 unit & integration tests)
-│   ├── __init__.py
-│   └── test_suite.py       # Security, data pipeline, AI engine & WSGI tests
-├── Dockerfile              # Production container definition (gunicorn on Python 3.11)
-├── .ebextensions/          # AWS Elastic Beanstalk cloud deployment configuration
-│   └── admission-assistant.config
-├── example.env             # Environment variable template
-├── requirements.txt        # Production dependencies (gunicorn)
+├── vercel.json             # Vercel deployment framework configuration
+├── tsconfig.json           # TypeScript configuration
+├── next.config.js          # Next.js configuration
+├── package.json            # Project dependencies and scripts
 └── README.md               # Project documentation
 ```
 
@@ -102,50 +104,48 @@ A web application that answers student enquiries about college admissions — el
 
 ### 1. Running Locally
 
-Clone the repository and run using the Python standard library:
+Clone the repository and install dependencies:
 
 ```bash
-python app.py
+npm install
+npm run dev
 ```
 
-Open [http://localhost:8000](http://localhost:8000) in your web browser.
+Open [http://localhost:3000](http://localhost:3000) in your web browser.
 
 ### 2. Optional: OpenAI GPT Integration
 
 To enable online GPT-powered phrasing:
 
-1. Copy `example.env` to `.env`:
-   ```bash
-   cp example.env .env
-   ```
-2. Add your OpenAI API key in `.env`:
+1. Create a `.env.local` file:
    ```ini
    OPENAI_API_KEY=sk-your-openai-api-key
    OPENAI_MODEL=gpt-4o-mini
    ```
 
-*Note: Without an API key, the assistant runs in offline mode using the built-in deterministic knowledge composer.*
+*Note: Without an API key, the assistant automatically runs in offline mode using the built-in deterministic knowledge composer.*
 
----
+### 3. Running Automated Tests
 
-## Running the Automated Test Suite
-
-Run all unit and integration tests using Python's built-in `unittest` runner:
+Run the test suite:
 
 ```bash
-python -m unittest discover -s tests -p "test_*.py"
+npm test
 ```
 
-All 27 test cases cover:
-- Input sanitization (XSS and control character filtering)
-- Session creation and cookie transmission
-- Client IP resolution through reverse proxies
-- Rate limiting and sliding-window enforcement
-- Static file path traversal protection
-- Knowledge base schema and referential integrity validation
-- Intent classification and program entity recognition
-- Offline composer responses across all intents
-- Full WSGI request/response cycle and JSON API endpoints
+Verifies:
+- Knowledge base schema integrity & derived fee calculations
+- Anti-XSS sanitization and control character filtering
+- Academic program entity recognition
+- Intent classification across all 5 domain intents
+- Sliding-window rate limiting
+
+### 4. Production Build
+
+```bash
+npm run build
+npm start
+```
 
 ---
 
@@ -181,75 +181,42 @@ Accept: application/json
 }
 ```
 
-### 2. `GET /health`
-System diagnostics and load-balancer health probe.
+### 2. `GET /api/health`
+System diagnostics and uptime probe.
 
 **Response (200 OK):**
 ```json
 {
   "status": "ok",
-  "service": "admission-assistant",
+  "service": "admission-assistant-nextjs",
   "ai_mode": "offline",
   "model": "kb-composer",
-  "active_sessions": 1,
   "stats": {
     "questions_answered": 1,
     "gpt_calls": 0,
     "offline_answers": 1,
     "by_intent": { "fees": 1, "eligibility": 0, "courses": 0, "procedure": 0, "facilities": 0, "faq": 0, "general": 0 }
+  },
+  "kb_stats": {
+    "programs": 6,
+    "fee_components": 18,
+    "facilities": 8,
+    "faqs": 5,
+    "validation_errors": 0,
+    "validation_report": "all records passed validation (0 errors)"
   }
 }
 ```
 
-### 3. `GET /clear`
-Resets the conversation history for the current session.
-
 ---
 
-## Production Deployment
+## Deployment to Vercel
 
-### Vercel (Serverless Cloud Deployment)
+The application is pre-configured for native Next.js deployment on Vercel:
 
-The repository is configured for native deployment on [Vercel](https://vercel.com/) via `@vercel/python` serverless functions.
-
-#### Option A: 1-Click Deploy via GitHub (Recommended)
-1. Go to your [Vercel Dashboard](https://vercel.com/dashboard) and click **"Add New..." > "Project"**.
-2. Select and import your GitHub repository: `Laljith123/mini_project_2`.
-3. Vercel automatically detects [`vercel.json`](file:///c:/Users/ASUS/Desktop/college/7th%20sem/cppe/first/vercel.json) and [`api/index.py`](file:///c:/Users/ASUS/Desktop/college/7th%20sem/cppe/first/api/index.py).
-4. (Optional) In the **Environment Variables** section, add:
-   - `OPENAI_API_KEY`: your OpenAI secret API key (if using online mode)
-   - `OPENAI_MODEL`: `gpt-4o-mini`
-5. Click **"Deploy"**. Vercel will build the Python serverless bundle and assign a public `https://*.vercel.app` URL with automated HTTPS and CDN edge caching. Every subsequent `git push origin main` triggers automatic redeployment.
-
-#### Option B: Deploy via Vercel CLI
 ```bash
-# 1. Login to Vercel
-npx vercel login
-
-# 2. Deploy to production
+# Deploy to production
 npx vercel --prod
 ```
 
----
-
-### Docker
-
-Build and run the container locally:
-
-```bash
-docker build -t admission-assistant .
-docker run -p 8000:8000 -e PORT=8000 admission-assistant
-```
-
----
-
-### AWS Elastic Beanstalk
-
-Deploy via the AWS EB CLI:
-
-```bash
-eb init -p docker admission-assistant
-eb create admission-assistant-env
-eb setenv OPENAI_API_KEY=sk-... OPENAI_MODEL=gpt-4o-mini
-eb deploy
-```
+Or connect the repository on your [Vercel Dashboard](https://vercel.com/dashboard) (`Laljith123/mini_project_2`) for automatic continuous deployment on every git push.
