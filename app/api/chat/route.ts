@@ -17,17 +17,31 @@ export async function POST(req: NextRequest) {
     const contentType = req.headers.get("content-type") || "";
 
     if (contentType.includes("application/json")) {
-      const body = await req.json();
-      question = body?.question || "";
-      if (typeof body?.apiKey === "string") {
-        apiKey = body.apiKey.trim();
+      try {
+        const body = await req.json();
+        question = body?.question || "";
+        if (typeof body?.apiKey === "string") {
+          apiKey = body.apiKey.trim();
+        }
+      } catch {
+        return NextResponse.json(
+          { error: "Invalid JSON in request body." },
+          { status: 400 }
+        );
       }
     } else {
-      const formData = await req.formData();
-      question = (formData.get("question") as string) || "";
-      const formKey = formData.get("apiKey") as string | null;
-      if (formKey) {
-        apiKey = formKey.trim();
+      try {
+        const formData = await req.formData();
+        question = (formData.get("question") as string) || "";
+        const formKey = formData.get("apiKey") as string | null;
+        if (formKey) {
+          apiKey = formKey.trim();
+        }
+      } catch {
+        return NextResponse.json(
+          { error: "Invalid form data in request body." },
+          { status: 400 }
+        );
       }
     }
 
