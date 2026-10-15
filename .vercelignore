@@ -1,0 +1,10 @@
+.git
+.venv
+__pycache__
+*.pyc
+tests/
+*.docx
+diagrams/
+screenshots/
+.ebextensions/
+Dockerfile

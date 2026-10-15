@@ -316,6 +316,7 @@ def dispatch(environ, start_response):
 
 
 application = dispatch  # WSGI entry point (gunicorn / Elastic Beanstalk)
+app = dispatch          # WSGI alias (Vercel / standard WSGI servers)
 
 
 def init():

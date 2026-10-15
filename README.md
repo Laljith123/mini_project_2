@@ -69,11 +69,15 @@ A web application that answers student enquiries about college admissions — el
 ## Project Structure
 
 ```
+├── api/                    # Vercel Serverless Function entry point
+│   └── index.py            # WSGI serverless adapter
 ├── app.py                  # Core WSGI web application (routing, sessions, API)
 ├── ai_engine.py            # AI Engine: Intent classification, retrieval, GPT/fallback
 ├── data_pipeline.py        # Data pipeline: Validation, transform, keyword indexing
 ├── security.py             # Security module: Sanitisation, rate limiter, headers
 ├── knowledge_base.json     # Curated admissions dataset (single source of truth)
+├── vercel.json             # Vercel deployment configuration & routing
+├── .vercelignore           # Vercel build exclusion rules
 ├── templates/              # Semantic HTML5 templates
 │   ├── base.html           # Site chrome layout
 │   ├── chat.html           # Chat UI with progressive enhancement
@@ -204,6 +208,30 @@ Resets the conversation history for the current session.
 
 ## Production Deployment
 
+### Vercel (Serverless Cloud Deployment)
+
+The repository is configured for native deployment on [Vercel](https://vercel.com/) via `@vercel/python` serverless functions.
+
+#### Option A: 1-Click Deploy via GitHub (Recommended)
+1. Go to your [Vercel Dashboard](https://vercel.com/dashboard) and click **"Add New..." > "Project"**.
+2. Select and import your GitHub repository: `Laljith123/mini_project_2`.
+3. Vercel automatically detects [`vercel.json`](file:///c:/Users/ASUS/Desktop/college/7th%20sem/cppe/first/vercel.json) and [`api/index.py`](file:///c:/Users/ASUS/Desktop/college/7th%20sem/cppe/first/api/index.py).
+4. (Optional) In the **Environment Variables** section, add:
+   - `OPENAI_API_KEY`: your OpenAI secret API key (if using online mode)
+   - `OPENAI_MODEL`: `gpt-4o-mini`
+5. Click **"Deploy"**. Vercel will build the Python serverless bundle and assign a public `https://*.vercel.app` URL with automated HTTPS and CDN edge caching. Every subsequent `git push origin main` triggers automatic redeployment.
+
+#### Option B: Deploy via Vercel CLI
+```bash
+# 1. Login to Vercel
+npx vercel login
+
+# 2. Deploy to production
+npx vercel --prod
+```
+
+---
+
 ### Docker
 
 Build and run the container locally:
@@ -212,6 +240,8 @@ Build and run the container locally:
 docker build -t admission-assistant .
 docker run -p 8000:8000 -e PORT=8000 admission-assistant
 ```
+
+---
 
 ### AWS Elastic Beanstalk
 
